@@ -3,9 +3,9 @@ from data import read_data
 
 def main():
 
-    base_directory = '/data/qte4288/BrainMRI-YOLO-LSTM' 
+    path_data = '/data/qte4288/BrainMRI-YOLO-LSTM' 
 
-    mri_data = read_data(base_directory)
+    data = read_data(path_data)
 
 
 if __name__ == "__main__":

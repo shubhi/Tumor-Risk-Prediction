@@ -30,6 +30,8 @@ def read_data(base_directory):
     base_directory = "/data/qte4288/BrainMRI-YOLO-LSTM"
     mri_data = read_mri_scans(base_directory)
 
+    print(mri_)
+
     # Sample output
     for patient_id, appointments in mri_data.items():
         print(f"Patient ID: {patient_id}")
