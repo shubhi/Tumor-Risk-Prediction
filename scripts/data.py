@@ -1,5 +1,10 @@
 import os
 import nibabel as nib
+import pandas as pd
+
+def read_metadata(pth_metadata):
+    df_metadata = pd.read_csv(pth_metadata)
+
 
 def read_mri_scans(base_dir):
     data = {}
