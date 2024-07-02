@@ -4,7 +4,17 @@ import pandas as pd
 
 def read_metadata(pth_metadata):
     df_metadata = pd.read_csv(pth_metadata)
-
+    
+    # Convert label to numerical
+    df_metadata['label'] = df_metadata['label'].apply(lambda x: 1 if x == 'TRUE' else 0)
+    
+    # Convert time to datetime
+    df_metadata['time'] = pd.to_datetime(df_metadata['time'], format='%d-%m-%y')
+    
+    # Calculate days since first scan
+    df_metadata['days'] = df_metadata.groupby('patient_id')['time'].transform(lambda x: (x - x.min()).dt.days)
+    
+    return df_metadata
 
 def read_mri_scans(base_dir):
     data = {}
@@ -34,8 +44,6 @@ def read_data(base_directory):
 
     base_directory = "/data/qte4288/BrainMRI-YOLO-LSTM"
     mri_data = read_mri_scans(base_directory)
-
-    print(mri_)
 
     # Sample output
     for patient_id, appointments in mri_data.items():
