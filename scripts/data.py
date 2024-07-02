@@ -21,6 +21,41 @@ def read_metadata(pth_metadata, base_dir):
     
     return df_metadata
 
+def save_metadata_mri_df(df, save_path):
+    """Save the new metadata DataFrame with MRI scan types to a CSV file."""
+    df.to_csv(save_path, index=False)
+
+
+def create_metadata_mri_df(metadata, pth_metadata_mri):
+    """Create a new DataFrame with MRI scan types included."""
+    new_rows = []
+    
+    for _, row in metadata.iterrows():
+        scan_dir = row['dir_scan']
+        if os.path.exists(scan_dir):
+            for scan_file in os.listdir(scan_dir):
+                scan_type = os.path.splitext(scan_file)[0]
+                scan_type = scan_type.split('_')[0]  # Extract the base scan type (e.g., 'FLAIR' from 'FLAIR_1.nii')
+                new_row = row.copy()
+                new_row['mri'] = scan_type
+                new_row['dir_scan'] =  os.path.join(scan_dir, scan_file) 
+                new_rows.append(new_row)
+    
+    new_df = pd.DataFrame(new_rows)
+    
+    # Reorder columns
+    cols = list(new_df.columns)
+    cols.remove('dir_scan')
+    cols.remove('label')
+    cols.append('label')
+    cols.append('dir_scan')
+    new_df = new_df[cols]
+
+    # Save the new metadata DataFrame with MRI scan types
+    save_metadata_mri_df(new_df, pth_metadata_mri)
+    
+    return new_df
+
 def load_scan(scan_path):
     """Load an individual MRI scan using nibabel."""
     return nib.load(scan_path).get_fdata()
@@ -43,34 +78,3 @@ def load_all_data(metadata):
             data[patient_id] = []
         data[patient_id].append(load_patient_data(row['dir_scan']))
     return data
-
-
-def create_metadata_mri_df(metadata):
-    """Create a new DataFrame with MRI scan types included."""
-    new_rows = []
-    
-    for _, row in metadata.iterrows():
-        scan_dir = row['dir_scan']
-        if os.path.exists(scan_dir):
-            for scan_file in os.listdir(scan_dir):
-                scan_type = os.path.splitext(scan_file)[0]
-                scan_type = scan_type.split('_')[0]  # Extract the base scan type (e.g., 'FLAIR' from 'FLAIR_1.nii')
-                new_row = row.copy()
-                new_row['mri'] = scan_type
-                new_rows.append(new_row)
-    
-    new_df = pd.DataFrame(new_rows)
-    
-    # Reorder columns
-    cols = list(new_df.columns)
-    cols.remove('dir_scan')
-    cols.remove('label')
-    cols.append('label')
-    cols.append('dir_scan')
-    new_df = new_df[cols]
-    
-    return new_df
-
-def save_metadata_mri_df(df, save_path):
-    """Save the new metadata DataFrame with MRI scan types to a CSV file."""
-    df.to_csv(save_path, index=False)
